@@ -1,12 +1,13 @@
 name: Terraform workspace infra
 
 on:
-  push:
-    branches:
-      - Master
-      - development
-      - dev
-      - staging
+  workflow_dispatch
+  #push:
+  #  branches:
+  #    - Master
+  #    - development
+  #    - dev
+  #    - staging
 
 
 jobs:
