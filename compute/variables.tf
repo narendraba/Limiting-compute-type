@@ -3,10 +3,10 @@ variable "instance_type" {
   type        = string
 }
 
-variable "allowed_instance_types" {
-  description = "Allowed instance types for this envinorment"
-  type        = list(string)
-}
+#variable "allowed_instance_types" {
+#  description = "Allowed instance types for this envinorment"
+#  type        = list(string)
+#}
 
 #variable "subnet_id" {
 #  description = "The subnet ID for the instance"
