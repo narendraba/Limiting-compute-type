@@ -8,8 +8,8 @@ resource "aws_subnet" "this" {
   availability_zone = var.availability_zone
 }
 
-resource "aws_security_group" "this" {
-  vpc_id = aws_vpc.this.id
+#resource "aws_security_group" "this" {
+#  vpc_id = aws_vpc.this.id
 
   ingress {
     from_port   = 22
