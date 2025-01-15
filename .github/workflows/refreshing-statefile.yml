@@ -1,4 +1,4 @@
-name: Terraform workspace infra destroy
+name: Terraform refreshing 
 
 on:
   workflow_dispatch
@@ -10,7 +10,7 @@ on:
 
 
 jobs:
-  terraform:
+  terraform-refreshing:
     runs-on: ubuntu-latest
 
     steps:
@@ -44,6 +44,9 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
+
+      - name: Force Unlock State
+        run: terraform force-unlock ea578d7b-4b38-4643-5817-c5fe0c9f6775 || true
         
       - name: Refresh Terraform State
         run: terraform plan -refresh-only
