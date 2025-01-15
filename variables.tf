@@ -23,26 +23,23 @@ variable "availability_zone" {
 }
 
 
-variable "instance_type" {
-  description = "The type of instance to use"
-  type        = string
-  default     = "t2.medium"
-}
-
 variable "allowed_instance_types" {
   description = "The type of instance to use"
   type        = list(string)
+}
+
+variable "instance_type" {
+  description = "The instance type to validate"
+  type        = string
 }
 
 locals {
   is_valid_instance_type = contains(var.allowed_instance_types, var.instance_type)
 }
 
-#validations
-
 resource "null_resource" "validate_instance_type" {
   provisioner "local-exec" {
-    when = "create"
+    when    = "create"
     command = "test ${local.is_valid_instance_type} = true || (echo 'Invalid instance type' && exit 1)"
   }
 }
