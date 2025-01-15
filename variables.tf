@@ -29,10 +29,10 @@ variable "availability_zone" {
 #}
 
 variable "instance_type" {
-  description = "The instance type to validate"
+  description = "The type of instance to use"
   type        = string
+  default     = "t2.micro"
 }
-
 #locals {
 #  is_valid_instance_type = contains(var.allowed_instance_types, var.instance_type)
 #}
