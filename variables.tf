@@ -29,6 +29,12 @@ variable "instance_type" {
   default     = "t2.micro"
 }
 
+variable "allowed_instance_type" {
+  description = "The type of instance to use"
+  type        = list(string)
+
+}
+
 variable "ami" {
   description = "The AMI to use for the instance"
   type        = string
