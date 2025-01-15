@@ -46,7 +46,7 @@ jobs:
         run: terraform init
 
       - name: Force Unlock State
-        run: terraform force-unlock ea578d7b-4b38-4643-5817-c5fe0c9f6775 || true
+        run: terraform force-unlock ea578d7b-4b38-4643-5817-c5fe0c9f6775 || true -auto-approve
         
       - name: Refresh Terraform State
         run: terraform plan -refresh-only
