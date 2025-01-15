@@ -50,21 +50,6 @@ jobs:
           terraform workspace new ${{ steps.workspace.outputs.workspace }} || terraform workspace select ${{ steps.workspace.outputs.workspace }}
           terraform apply -auto-approve
           
-      - name: Capture Instance ID
-        id: capture_instance_id
-        run: |
-          INSTANCE_ID=$(terraform output -raw instance_id | tr -d '\n')
-          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
-
-      - name: Create AMI Backup
-        id: create_ami
-        run: |
-          AMI_ID=$(aws ec2 create-image --instance-id ${{ env.INSTANCE_ID }} --name "backup-$(date +%Y-%m-%d)" --no-reboot --query "ImageId" --output text)
-          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
-
-      - name: Wait for AMI to be available
-        run: |
-          aws ec2 wait image-available --image-ids ${{ env.AMI_ID }}
           
       - name: Terraform Destroy
         run: |
