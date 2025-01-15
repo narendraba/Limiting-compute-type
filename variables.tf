@@ -29,7 +29,7 @@ variable "instance_type" {
   default     = "t2.micro"
 }
 
-variable "allowed_instance_type" {
+variable "allowed_instance_types" {
   description = "The type of instance to use"
   type        = list(string)
 
