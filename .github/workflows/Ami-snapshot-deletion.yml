@@ -1,0 +1,93 @@
+name: Terraform workspace backup and destroy
+
+on:
+  workflow_dispatch
+  #push:
+  #  branches:
+  #    - Master
+  #    - development
+  #    - staging
+
+
+jobs:
+  terraform-backup-destroy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+          
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ap-south-1
+
+      - name: Set Terraform Workspace
+        id: workspace
+        run: |
+          if [[ "${GITHUB_REF##*/}" == "Master" ]]; then
+            echo "::set-output name=workspace::production"
+          elif [[ "${GITHUB_REF##*/}" == "development" ]]; then
+            echo "::set-output name=workspace::development"
+          elif [[ "${GITHUB_REF##*/}" == "staging" ]]; then
+            echo "::set-output name=workspace::staging"
+          else
+            echo "::set-output name=workspace::default"
+          fi
+      
+
+      # Step 3: Fetch AMI ID Dynamically
+      - name: Fetch AMI ID
+        id: fetch-ami
+        run: |
+          TAG_KEY="Backup"
+          TAG_VALUE="TerraformDestroy"
+          AMI_ID=$(aws ec2 describe-images \
+            --filters "Name=tag:${TAG_KEY},Values=${TAG_VALUE}" \
+                      "Name=state,Values=available" \
+            --query "Images[].ImageId" --output text)
+          if [ -z "$AMI_ID" ]; then
+            echo "Error: No AMI found with the specified tags."
+            exit 1
+          fi
+          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
+          echo "Fetched AMI ID: $AMI_ID"
+
+      # Step 4: Fetch Snapshot IDs Associated with AMI
+      - name: Fetch Snapshot IDs
+        id: fetch-snapshots
+        run: |
+          AMI_ID=${{ env.AMI_ID }}
+          SNAPSHOT_IDS=$(aws ec2 describe-images \
+            --image-ids $AMI_ID \
+            --query "Images[].BlockDeviceMappings[].Ebs.SnapshotId" --output text)
+          if [ -z "$SNAPSHOT_IDS" ]; then
+            echo "Error: No snapshots found for the AMI ($AMI_ID)."
+            exit 1
+          fi
+          echo "Snapshot IDs: $SNAPSHOT_IDS"
+          echo "SNAPSHOT_IDS=$SNAPSHOT_IDS" >> $GITHUB_ENV
+
+      # Step 5: Deregister AMI
+      - name: Deregister AMI
+        run: |
+          echo "Deregistering AMI: ${{ env.AMI_ID }}"
+          aws ec2 deregister-image --image-id ${{ env.AMI_ID }}
+          echo "AMI ${{ env.AMI_ID }} deregistered successfully."
+
+      # Step 6: Delete Snapshots
+      - name: Delete Snapshots
+        run: |
+          for SNAPSHOT_ID in ${{ env.SNAPSHOT_IDS }}; do
+            echo "Deleting Snapshot: $SNAPSHOT_ID"
+            aws ec2 delete-snapshot --snapshot-id $SNAPSHOT_ID
+            echo "Snapshot $SNAPSHOT_ID deleted successfully."
+          done
+
