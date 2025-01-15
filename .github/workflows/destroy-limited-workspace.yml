@@ -53,7 +53,7 @@ jobs:
       - name: Capture Instance ID
         id: capture_instance_id
         run: |
-          INSTANCE_ID=$(terraform output -raw instance_id | tr -d '\r')
+          INSTANCE_ID=$(terraform output -raw instance_id | tr -d '\n')
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
 
       - name: Create AMI Backup
