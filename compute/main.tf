@@ -5,7 +5,7 @@ provider "aws" {
 resource "aws_instance" "compute" {
   
   
-  #allowed_instance_types = var.allowed_instance_types
+  allowed_instance_types = var.allowed_instance_types
   instance_type = var.instance_type
   ami           = var.ami
   #subnet_id     = var.subnet_id
