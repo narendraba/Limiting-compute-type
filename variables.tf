@@ -35,7 +35,7 @@ variable "allowed_instance_types" {
 }
 
 locals {
-  is_valid_instance_type = caontains(var.allowed_instance_types, var.instance_type)
+  is_valid_instance_type = contains(var.allowed_instance_types, var.instance_type)
 }
 
 #validations
