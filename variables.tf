@@ -23,26 +23,26 @@ variable "availability_zone" {
 }
 
 
-#variable "allowed_instance_types" {
-#  description = "The type of instance to use"
-#  type        = list(string)
-#}
+variable "allowed_instance_types" {
+  description = "The type of instance to use"
+  type        = list(string)
+}
 
 variable "instance_type" {
   description = "The type of instance to use"
   type        = string
-  default     = "t2.micro"
+  default     = "t2.medium"
 }
-#locals {
-#  is_valid_instance_type = contains(var.allowed_instance_types, var.instance_type)
-#}
+locals {
+  is_valid_instance_type = contains(var.allowed_instance_types, var.instance_type)
+}
 
-#resource "null_resource" "validate_instance_type" {
-#  provisioner "local-exec" {
-#    when    = "create"
-#    command = "test ${local.is_valid_instance_type} = true || (echo 'Invalid instance type' && exit 1)"
-#  }
-#}
+resource "null_resource" "validate_instance_type" {
+  provisioner "local-exec" {
+    when    = "create"
+    command = "test ${local.is_valid_instance_type} = true || (echo 'Invalid instance type' && exit 1)"
+  }
+}
 
 variable "ami" {
   description = "The AMI to use for the instance"
