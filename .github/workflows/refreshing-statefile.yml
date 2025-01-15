@@ -35,7 +35,7 @@ jobs:
           terraform workspace select production || terraform workspace new production
 
       - name: Force Unlock State
-        run: terraform force-unlock -force af84144e-daf2-4cd0-f235-c2b4a5d2d18b || true
+        run: terraform force-unlock -force 063068e7-55e0-68f5-c589-096ee47d06d2 || true
 
       - name: Refresh Terraform State
         run: terraform plan -refresh-only -lock=false
