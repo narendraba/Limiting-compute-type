@@ -1,55 +1,41 @@
-name: Terraform refreshing 
+name: Terraform Refresh State
 
 on:
-  workflow_dispatch
-  #push:
-  #  branches:
-  #    - Master
-  #    - development
-  #    - staging
-
+  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-  terraform-refreshing:
+  refresh-state:
+    name: 'Refresh Terraform State'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: 1.5.0
-          
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v3
+          terraform_version: 1.0.11
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
 
-      - name: Set Terraform Workspace
-        id: workspace
+      - name: Terraform Init
+        run: terraform init -reconfigure
+
+      - name: Select or Create Workspace
         run: |
-          if [[ "${GITHUB_REF##*/}" == "Master" ]]; then
-            echo "::set-output name=workspace::production"
-          elif [[ "${GITHUB_REF##*/}" == "development" ]]; then
-            echo "::set-output name=workspace::development"
-          elif [[ "${GITHUB_REF##*/}" == "staging" ]]; then
-            echo "::set-output name=workspace::staging"
-          else
-            echo "::set-output name=workspace::default"
-          fi
+          terraform workspace select production || terraform workspace new production
 
       - name: Force Unlock State
-        run: terraform force-unlock ea578d7b-4b38-4643-5817-c5fe0c9f6775 || true
-        
-      - name: Terraform Init
-        run: terraform init
+        run: terraform force-unlock -force ea578d7b-4b38-4643-5817-c5fe0c9f6775 || true
 
-      
-        
       - name: Refresh Terraform State
         run: terraform plan -refresh-only -lock=false
-      
