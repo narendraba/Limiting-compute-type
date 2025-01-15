@@ -1,4 +1,4 @@
-name: Terraform workspace backup and destroy
+name: Ami-snapshot-deletion
 
 on:
   workflow_dispatch
@@ -10,7 +10,7 @@ on:
 
 
 jobs:
-  terraform-backup-destroy:
+  deleting-ami-snapshots:
     runs-on: ubuntu-latest
 
     steps:
