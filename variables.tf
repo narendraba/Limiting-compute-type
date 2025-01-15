@@ -32,7 +32,19 @@ variable "instance_type" {
 variable "allowed_instance_types" {
   description = "The type of instance to use"
   type        = list(string)
+}
 
+locals {
+  is_valid_instance_type = caontains(var.allowed_instance_types, var.instance_type)
+}
+
+#validations
+
+resource "null_resource" "validate_instance_type" {
+  provisioner "local-exec" {
+    when = "create"
+    command = "test ${local.is_valid_instance_type} = true || (echo 'Invalid instance type' && exit 1)"
+  }
 }
 
 variable "ami" {
